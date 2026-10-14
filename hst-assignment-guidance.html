@@ -1,0 +1,365 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>hst-assignment-guidance</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="guidance-for-your-assignment">Guidance for your assignment</h1>
+<p>The central problem of your assignment is the task of using
+calibration files to transform a raw CCD exposure into a science-ready
+image. Let us be clear from the start: this is not a trivial problem.
+Lots of really bright people have spent lots of years doing lots of
+testing to write robust data-reduction pipelines specifically for this
+purpose, so what we’re doing here is very much a simplified version
+that, nonetheless, gives us a pretty good idea of what’s going on when
+we leave the heavy lifting to a black box.</p>
+<p>The formula for our approach is actually pretty simple:</p>
+<pre><code>stars + noise = (raw - bias - dark) / flat - sky</code></pre>
+<p>It may be tempting to just jump straight into this, but we first need
+to account for things like bad pixels and bias levels in our raw image
+before we can convert the data to physically meaningful values.</p>
+<h2 id="the-calibration-files">The calibration files</h2>
+<p>A <em>full</em> description of each of the files mentioned in the
+brief is available in the <a
+href="https://stsci.recollectcms.com/nodes/view/1411">WFPC2 Pipeline
+Calibration manual</a>, but we can briefly summarize them here.</p>
+<p><strong><code>MASKFILE</code></strong></p>
+<p>This is simply a mask of all the bad pixels. The data is stored as
+16-bit integer values, where 0 represents good pixels, 2 represents
+defective pixels, and 256 represents “questionable pixels”. You should
+definitely make a plot of this and compare it to your raw exposure, and
+think about the values in the pixels to decide how (if at all) to use
+the mask file.</p>
+<p><strong><code>BLEVFILE</code></strong></p>
+<p>This is a file that contains the bias level values, which are DC
+offsets applied to ensure our values are always positive. The digital
+value stored for a pixel is limited by the resolution of the
+Analog-to-Digital Converter (ADC). The HST has a 16-bit ADC, meaning it
+can store <span class="math inline">2<sup>16</sup> = 65536</span>
+discrete values; in practice only 12 bits are used, so pixel values will
+be in the range 0-4095. We want positive numbers because if we allow
+negative numbers, our values will be between -2048 and 2048 which
+results in quicker saturation of the pixels and a significant loss of
+data. The bias level file uses the <strong>overscan</strong> region of
+each chip (pixels that are always covered) to calculate the “padding”
+applied to ensure positive numbers. For the WFPC2, this overscan region
+is in columns 9-14 and rows 10-790. In Python nomenclature, we use
+<code>data[row, column]</code> so this is
+<code>data[9:790, 8:14]</code>.</p>
+<p>To make it more fun, the bias levels for even and odd rows are
+different. So <code>BIASODD</code> is the odd columns (9, 11, and 13)
+and <code>BIASEVEN</code> is the even columns (8, 10, and 12),
+<strong>BUT</strong> because Python indexing starts at 0 and not 1, the
+odd columns are <em>even</em> in Python nomenclature. To apply the bias
+level correction, we need to get the mean value of the odd overscan
+regions and subtract that from the odd columns of the image, and then
+get the mean value of the even overscan regions and subtract that from
+the even columns of the image.</p>
+<p><strong><code>BIASFILE</code></strong></p>
+<p>This is an image of the same shape as our science exposure which
+compensates for readout noise. We get it just by taking a short exposure
+with a closed shutter. We can simply subtract this from our bias level
+corrected image.</p>
+<p><strong><code>DARKFILE</code></strong></p>
+<p>This is a closed-shutter image with same exposure time as our science
+image, and it accounts for thermal noise. Like the bias we need to
+subtract this from our bias corrected image after multiplying it by our
+exposure time.</p>
+<p><strong><code>FLATFILE</code></strong></p>
+<p>This is an image taken with a uniform exposure that accounts for
+pixel sensitivity variations across our detector. The WFPC2 pipeline
+delivers this as an inverse sensitivity, so we multiply this by our
+image in the reduction workflow as opposed to dividing by it.</p>
+<h2 id="some-hints-for-the-blevfile">Some hints for the
+<code>BLEVFILE</code></h2>
+<p>You can use slicing in Python to get odd or even columns and rows
+from the full data, or you could even use modulo division to check for
+odd or even columns/rows. A nice way to “unpack” rows and columns of a
+<code>numpy</code> array is:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y, x <span class="kw">in</span> np.ndindex(data.shape):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  value <span class="op">=</span> data[y, x]</span></code></pre></div>
+<p>Alternatively you can get the shape explicitly and use a
+<code>range</code> iteration:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>nrows, ncols <span class="op">=</span> data.shape </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(ncols):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  column_data <span class="op">=</span> data[:, col]</span></code></pre></div>
+<p>It’s important to note that this file stores the overscan information
+for each chip in different extensions, so it is not all available in the
+same array! You will need to account for this in your code.</p>
+<p>An example for parsing the <code>BLEVFILE</code> might be something
+like,</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_blev_file(filename, chip<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">with</span> fits.<span class="bu">open</span>(filename) <span class="im">as</span> hdul:</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> hdul[chip].data</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># some code to parse odd and even columns here </span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    odd_vals <span class="op">=</span> your_odd_routine</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    even_vals <span class="op">=</span> your_even_routine</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.mean(odd_vals), np.mean(even_vals)</span></code></pre></div>
+<h2 id="putting-it-all-together">Putting it all together</h2>
+<p>Remember that you want this to be <strong>extensible</strong> so you
+aren’t repeating yourself or making unnecessary work for yourself in
+your code. A good way to do this is to have each process handled by a
+different function, and use a primary function to call all the
+individual tasks. You could give these tasks descriptive function names,
+e.g. <code>apply_biascorr()</code> or <code>do_flatcorr()</code>. A
+possible workflow could look like,</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_blev_file(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># see above </span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apply_bias_corr(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># something here </span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_calibration_files(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># maybe a dict or a list </span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_calibration(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  calib_files <span class="op">=</span> load_calibration_files()</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  blev_data <span class="op">=</span> parse_blev_file(some_arg_here)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  bias_corr <span class="op">=</span> apply_bias_corr(raw_data, blev_data)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># etc </span></span></code></pre></div>
+<p>It’s of course up to you how to structure it, but just be neat!</p>
+</body>
+</html>
