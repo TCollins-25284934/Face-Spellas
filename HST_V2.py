@@ -289,7 +289,7 @@ def get_sky(image):
     return pc_data_masked
 
 def main():
-    raw_file = load_calibration_files(2505, "raw")
+    # raw_file = load_calibration_files(2505, "raw")
     # mask_file = load_calibration_files(2505, "mask")
     # blev_file =load_calibration_files(2505, "blev")
     # bias_file = load_calibration_files(2505, "bias")
@@ -297,7 +297,7 @@ def main():
     # flat_file = load_calibration_files(2505, "flat")
     #
     # mask = image_extract(mask_file, 0)
-    raw = image_extract(raw_file, 1)
+    # raw = image_extract(raw_file, 1)
     # dark = image_extract(dark_file, 0)
     # flat = image_extract(flat_file,0)
     # bias = image_extract(bias_file, 0)
