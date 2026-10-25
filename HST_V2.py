@@ -2,6 +2,7 @@ import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import fits
+from photutils.background import Background2D, MedianBackground
 
 here = pathlib.Path(".")
 
@@ -77,7 +78,10 @@ def apply_flat(image, flat_cube):
 
 
 def subtract_sky(image, background):
-    return image - background
+    sub_image = image.copy()
+    for i in range(image.shape[0]):
+        sub_image[i] = image[i] - background[i]
+    return sub_image
 
 
 def calibrate_exposure(index):
@@ -116,9 +120,9 @@ def calibrate_exposure(index):
         flat
     )
 
-    sky = get_sky(raw[0])
-    image = subtract_sky(image, sky)
-    image = transform_by('sqrt', image, pmin=1, pmax=99)
+    skies = get_sky(raw)
+    image = subtract_sky(image, skies)
+    # image = transform_by('sqrt', image, pmin=1, pmax=99)
     # image = transform_by('log', image, pmin=15, pmax=85)
 
 
@@ -129,18 +133,11 @@ def show_chip(image_cube, chip=0):
 
     fig, ax = plt.subplots(figsize=(8, 8))
 
-    image = image_cube[chip,:, :]
-
+    image = image_cube[chip]
     ax.imshow(
         image,
-        origin="lower",
-        vmin=np.nanpercentile(image, 1),
-        vmax=np.nanpercentile(image, 99)
+        origin="lower"
     )
-    # ax.imshow(
-    #     image,
-    #     origin="lower"
-    # )
 
     ax.set_title(f"Chip {chip}")
 
@@ -240,10 +237,13 @@ def filter_mad(sample, threshold=3):
     """
     median = np.nanmedian(sample)
     mad = np.nanmedian(np.abs(sample - median))
+    if mad == 0 or np.isnan(mad):
+        return np.zeros(sample.shape, dtype=bool)
+
     stddev = 1.4826 * mad
 
     # flag = (sample - median) > (threshold * stddev)
-    flag = (sample - median) / stddev > threshold
+    flag = np.abs(sample - median) / stddev > threshold
     print(f"MAD thresholding produced {flag.sum()} values above the threshold")
     return flag
 
@@ -277,48 +277,75 @@ def filter_by(data, kind='mad', thresh=3):
         filtered = filter_stddev(data, thresh)
     return filtered
 
-# madmask = filter_by('mad', pc_data, 3)
-# stdmask = filter_by('std', pc_data, 3)
 
 def get_sky(image):
-    flag = filter_by(image, 'mad', 3)
-    pc_data_masked = np.ma.masked_array(image, mask=flag)
+    skies = []
+    for i in range(image.shape[0]):
+        flag = filter_by(image[i], 'mad', 3)
+        bkg = Background2D(
+            image[i],
+            box_size=(800,800),
+            mask=flag,
+            bkg_estimator=MedianBackground()
+        )
+        skies.append(bkg.background)
+    # pc_data_masked = np.ma.masked_array(image, mask=flag)
     # fig, ax = plt.subplots(figsize=(7, 7))
-    # ax.imshow(pc_data_masked, origin='lower')
+    # ax.imshow(bkg.background, origin='lower')
     # plt.show()
-    return pc_data_masked
+    # 0.0006219064629935378
+
+
+
+    return skies
+    # fig, (ax1,ax2) = plt.subplots(ncols=2,figsize=(7, 7))
+    # ax1.imshow(pc_data_masked, origin='lower')
+    # ax2.imshow(sky, origin='lower')
+    # plt.show()
+    # return sky
+
+
 
 def main():
-    # raw_file = load_calibration_files(2505, "raw")
-    # mask_file = load_calibration_files(2505, "mask")
-    # blev_file =load_calibration_files(2505, "blev")
-    # bias_file = load_calibration_files(2505, "bias")
-    # dark_file = load_calibration_files(2505, "dark")
-    # flat_file = load_calibration_files(2505, "flat")
-    #
-    # mask = image_extract(mask_file, 0)
-    # raw = image_extract(raw_file, 1)
-    # dark = image_extract(dark_file, 0)
-    # flat = image_extract(flat_file,0)
-    # bias = image_extract(bias_file, 0)
-    #
-    # corrected1 = apply_mask(raw, mask)
-    # corrected2 = apply_blev_correction(corrected1, blev_file)
-    # corrected3 = subtract_dark(corrected2, dark, raw_file)
-    # corrected4= apply_flat(corrected3, flat)
-    # corrected5 = subtract_bias(corrected4, bias)
+    raw_file = load_calibration_files(2505, "raw")
 
+    raw = image_extract(raw_file, 1)
 
     calibrated = calibrate_exposure(2505)
+    image = calibrated[0]
+    image2 = calibrated[1]
+    image3 = calibrated[2]
+    image4 = calibrated[3]
+    calibrated = transform_by('sqrt', calibrated, pmin=1, pmax=99)
+
+    # image = transform_by('sqrt', image, pmin=1, pmax=99)
+    # image2 = transform_by('sqrt', image2, pmin=1, pmax=99)
+    # image3 = transform_by('sqrt', image3, pmin=1, pmax=99)
+    # image4 = transform_by('sqrt', image4, pmin=1, pmax=99)
+    # fig, (ax1, ax2, ax3, ax4) = plt.subplots(ncols = 4,figsize=(8, 8))
+    # ax1.imshow(calibrated[0], origin="lower")
+    # ax2.imshow(calibrated[1], origin="lower")
+    # ax3.imshow(calibrated[2], origin="lower")
+    # ax4.imshow(calibrated[3], origin="lower")
+    # fig, (ax5, ax6, ax7, ax8) = plt.subplots(ncols = 4,figsize=(8, 8))
+    # ax5.imshow(image, origin="lower")
+    # ax6.imshow(image2, origin="lower")
+    # ax7.imshow(image3, origin="lower")
+    # ax8.imshow(image4, origin="lower")
+    # plt.show()
+
+    # image2 = calibrated[1]
+    # # image2 = transform_by('sqrt', image2, pmin=1, pmax=99)
+    # plt.figure(figsize=(8, 8))
+    # plt.imshow(image2, origin="lower")
+    # plt.show()
+    # show_chip(image, chip=0)
     # pc_norm = normalize_data(corrected, pmin=1, pmax=99)
     # pc_norm.min(), pc_norm.max(), np.median(pc_norm)
     # print(calibrated.shape)
-    show_chip(calibrated, chip=1)
+    # show_chip(calibrated, chip=0)
 
-    # plt.figure(figsize=(8, 8))
-    # plt.imshow(pc_norm[1],
-    #            origin="lower")
-    # plt.show()
+    #
     # raw_sqrt = transform_by(
     #     'sqrt',
     #     raw,
@@ -389,33 +416,41 @@ def main():
     with fits.open(data_file) as hdul:
         reference = hdul[1].data.astype(float)
 
-    mine = calibrated[0]
-
-    ref_display = transform_by('sqrt', reference, pmin=1, pmax=99)
-    # my_display = transform_by('sqrt', mine, pmin=1, pmax=99)
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-
-    ax1.imshow(mine, origin='lower')
-    ax1.set_title("My calibration")
-
-    ax2.imshow(ref_display, origin='lower')
-    ax2.set_title("HST reference product")
-
-    plt.show()
-
-    difference = mine - reference
-    plt.imshow(
-        difference,
-        origin="lower",
-        vmin=np.nanpercentile(difference, 5),
-        vmax=np.nanpercentile(difference, 95)
-    )
-    plt.colorbar()
-    plt.title("Difference")
-    plt.show()
-    # get_sky(raw[0])
-
+    # mine = calibrated[0]
+    # mine = transform_by('sqrt', mine, pmin=1, pmax=99)
+    #
+    # ref_display = transform_by('sqrt', reference, pmin=1, pmax=99)
+    # # my_display = transform_by('sqrt', mine, pmin=1, pmax=99)
+    #
+    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    #
+    # im1= ax1.imshow(mine, origin='lower')
+    # ax1.set_title("My calibration")
+    #
+    # im2 = ax2.imshow(ref_display, origin='lower')
+    # ax2.set_title("HST reference product")
+    # fig.colorbar(im1, ax=ax1)
+    # fig.colorbar(im2, ax=ax2)
+    # plt.show()
+    #
+    # difference = mine - ref_display
+    # print("difference median:", np.nanmedian(difference))
+    # plt.imshow(
+    #     difference,
+    #     origin="lower"
+    # )
+    # plt.colorbar()
+    # plt.title("Difference")
+    # plt.show()
+    # # get_sky(raw[0])
+    # sky = get_sky(raw[0])
+    #
+    # print("sky median:", np.nanmedian(sky))
+    # print("sky min:", np.nanmin(sky))
+    # print("sky max:", np.nanmax(sky))
+    # print("image median:", np.nanmedian(raw[0]))
+    # print(np.nanmedian(reference))
+    # print(np.nanmedian(mine))
 
 if __name__ == "__main__":
     main()
