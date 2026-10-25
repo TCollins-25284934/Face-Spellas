@@ -15,12 +15,22 @@ def load_calibration_files(index, key):
     return new_dict[key]
 
 
-def image_extract(filename, ext):
+def image_extract(filename):
 
     with fits.open(filename) as hdul:
-        data = hdul[ext].data.astype(float)
 
-    return data
+        for hdu in hdul:
+
+            if hdu.data is None:
+                continue
+
+            # Looking for a 4-chip image cube
+            if (isinstance(hdu.data, np.ndarray) and hdu.data.ndim == 3 and 4 in hdu.data.shape):
+
+                data = hdu.data.astype(float)
+                return data
+
+    raise ValueError(f"No suitable image cube found in {filename}")
 
 
 def apply_mask(raw, mask):
@@ -35,7 +45,6 @@ def get_blev_values(blev_chip):
 
     overscan = blev_chip[9:790, 8:14]
 
-
     odd_bias = np.mean(overscan[:, ::2])
     even_bias = np.mean(overscan[:, 1::2])
 
@@ -48,16 +57,46 @@ def apply_blev_correction(raw, blev_file):
 
     with fits.open(blev_file) as hdul:
 
-        for chip in range(4):
+        # New-format file:
+        # PRIMARY contains (14, 800, 4)
+        if (
+            hdul[0].data is not None
+            and hdul[0].data.ndim == 3
+            and 4 in hdul[0].data.shape
+        ):
 
-            blev_chip = hdul[chip + 1].data.astype(float)
+            blev_cube = hdul[0].data.astype(float)
 
-            odd_bias, even_bias = get_blev_values(blev_chip)
+            # (14,800,4) -> (4,800,14)
+            if blev_cube.shape[-1] == 4:
+                blev_cube = np.moveaxis(blev_cube, -1, 0)
 
-            corrected[chip, :, ::2] -= odd_bias
-            corrected[chip, :, 1::2] -= even_bias
+            for chip in range(4):
+
+                odd_bias, even_bias = get_blev_values(
+                    blev_cube[chip]
+                )
+
+                corrected[chip, :, ::2] -= odd_bias
+                corrected[chip, :, 1::2] -= even_bias
+
+        # Old-format file:
+        # chips stored in extensions 1-4
+        else:
+
+            for chip in range(4):
+
+                blev_chip = hdul[chip + 1].data.astype(float)
+
+                odd_bias, even_bias = get_blev_values(
+                    blev_chip
+                )
+
+                corrected[chip, :, ::2] -= odd_bias
+                corrected[chip, :, 1::2] -= even_bias
 
     return corrected
+
 
 
 def subtract_bias(image, bias_cube):
@@ -67,8 +106,9 @@ def subtract_bias(image, bias_cube):
 
 def subtract_dark(image, dark_cube, raw_file):
     with fits.open(raw_file) as hdul:
-        header = hdul[0].header
-    return image - dark_cube*hdul[0].header.get("EXPTIME")
+        exptime = hdul[0].header.get("EXPTIME")
+    return image - dark_cube * exptime
+
 
 
 
@@ -88,11 +128,11 @@ def calibrate_exposure(index):
     dark_file = load_calibration_files(index, "dark")
     flat_file = load_calibration_files(index, "flat")
 
-    raw = image_extract(raw_file, 1)
-    mask = image_extract(mask_file, 0)
-    bias = image_extract(bias_file, 0)
-    dark = image_extract(dark_file, 0)
-    flat = image_extract(flat_file, 0)
+    raw = image_extract(raw_file)
+    mask = image_extract(mask_file)
+    bias = image_extract(bias_file)
+    dark = image_extract(dark_file)
+    flat = image_extract(flat_file)
     image = raw
     # image = apply_mask(raw, mask)
 
@@ -120,7 +160,7 @@ def calibrate_exposure(index):
 
     for chip in range(image.shape[0]):
         image[chip] -= sky[chip]
-    print(sky)
+    # print(sky)
 
     # image = subtract_sky(image, sky)
     # image = transform_by('sqrt', image, pmin=1, pmax=99)
@@ -243,7 +283,7 @@ def filter_mad(sample, threshold=3):
 
     # flag = (sample - median) > (threshold * stddev)
     flag = (sample - median) / stddev > threshold
-    print(f"MAD thresholding produced {flag.sum()} values above the threshold")
+    # print(f"MAD thresholding produced {flag.sum()} values above the threshold")
     return flag
 
 def filter_stddev(sample, threshold=3):
@@ -264,7 +304,7 @@ def filter_stddev(sample, threshold=3):
     mean = np.nanmean(sample)
     stddev = np.nanstd(sample)
     flag = (sample - mean) / stddev > threshold
-    print(f"STDDEV thresholding produced {flag.sum()} values above threshold")
+    # print(f"STDDEV thresholding produced {flag.sum()} values above threshold")
     return flag
 
 
@@ -291,6 +331,102 @@ def get_sky(image):
         skies.append(np.ma.median(masked))
 
     return np.array(skies)
+
+def difference(image,index):
+    data_file = 'hst-data/F336W/ubai' + str(index) +'m_c0m_aligned.fits'
+
+    with fits.open(data_file) as hdul:
+        reference = hdul[1].data.astype(float)
+
+    mine = image[0]
+    mine = transform_by('sqrt', mine, pmin=1, pmax=99)
+    ref_display = transform_by('sqrt', reference, pmin=1, pmax=99)
+    # my_display = transform_by('sqrt', mine, pmin=1, pmax=99)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+
+    ax1.imshow(mine, origin='lower')
+    ax1.set_title("My calibration")
+
+    ax2.imshow(ref_display, origin='lower')
+    ax2.set_title("HST reference product")
+
+    plt.show()
+
+    difference = mine - ref_display
+    plt.imshow(
+        difference,
+        origin="lower"
+    )
+    plt.colorbar()
+    plt.title("Difference")
+    plt.show()
+
+def histogram(ax, x, bins=100, xrange=None, density=False,
+              normed=True, histtype='step', **kwargs):
+    """
+    compute and plot a histogram from some given data, correctly
+    handling normalization
+
+    Parameters:
+    -----------
+    ax: matplotlib.axes.Axes instance
+        where to plot the data
+    x: array
+        input values
+    bins: int
+        number of bins to use
+    range: tuple or None
+        bin range
+    density: bool (default False)
+        if True, return a noramlized probability density
+    normed: bool, default True
+        if True, return a normalized histogram
+    histtype: one of 'bar', 'stacked', 'step', 'stepfilled'; default 'step'
+        what type of histogram to draw
+
+    Returns:
+    ----------
+    n, bins, patches:
+        see Axes.stairs for more information
+    """
+    counts, bin_edges = np.histogram(x, bins, range=xrange)
+    widths = bin_edges[1:] - bin_edges[:-1]
+
+    if density:
+        counts = counts / (widths * x.size)
+    elif normed:
+        counts = counts / widths
+
+    return ax.hist(
+        bin_edges[:-1], bin_edges, weights=counts, histtype=histtype, **kwargs
+    )
+
+def histogram_overlay(image1, index):
+    data_file = 'hst-data/F336W/ubai' + str(index) + 'm_c0m_aligned.fits'
+
+    with fits.open(data_file) as hdul:
+        reference = hdul[1].data.astype(float)
+
+    # mine = MAD.transform_by('sqrt', mine, pmin=1, pmax=99)
+    # ref_display = MAD.transform_by('sqrt', reference, pmin=1, pmax=99)
+
+    fig, ax = plt.subplots(figsize=(9, 6))
+    histogram(ax, image1, bins=250, color='blue', label='Image 1')
+    histogram(ax, reference, bins=250, color='red', label='Image 2')
+    ax.set_yscale('log')
+    plt.grid(ls=':')
+    plt.tight_layout()
+    plt.show()
+
+def cosmic_ray_removal(*stacks, chip):
+    stacks = np.asarray(stacks)
+    combined_images = np.median(stacks, axis=0)
+    show_chip(combined_images,chip)
+    return combined_images
+
+
+
 
 def main():
     calibrated = calibrate_exposure(2505)

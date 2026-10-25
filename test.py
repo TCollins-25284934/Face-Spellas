@@ -1,37 +1,29 @@
-import HST_V2
+import MAD
+from astropy.io import fits
 import matplotlib.pyplot as plt
-raw_file = MAD_easy.load_calibration_files(2505, "raw")
-raw = MAD_easy.image_extract(raw_file, 1)
-# print(raw.shape[0])
-skies = HST_V2.get_sky(raw)
-# print(skies)
+import numpy as np
 
-calibrated = HST_V2.calibrate_exposure(2505)
-image = calibrated[0]
-image2 = calibrated[1]
-image3 = calibrated[2]
-image4 = calibrated[3]
-calibrated = HST_V2.transform_by('sqrt', calibrated, pmin=1, pmax=99)
-# HST_V2.show_chip(calibrated, 0)
-# HST_V2.show_chip(calibrated, 1)
-# HST_V2.show_chip(calibrated, 2)
-# HST_V2.show_chip(calibrated, 3)
+calibrated = MAD.calibrate_exposure(2505)
+MAD.show_chip(calibrated,0)
+MAD.difference(calibrated,2505)
+MAD.histogram_overlay(calibrated[0], 2505)
+#
+calibrated2 = MAD.calibrate_exposure(2507)
+MAD.show_chip(calibrated2, 0)
+MAD.difference(calibrated2,2507)
+MAD.histogram_overlay(calibrated2[0], 2507)
+
+calibrated3 = MAD.calibrate_exposure(2508)
+MAD.show_chip(calibrated3, 0)
+MAD.difference(calibrated3,2508)
+MAD.histogram_overlay(calibrated3[0], 2508)
+
+MAD.cosmic_ray_removal(calibrated,calibrated2,calibrated3,chip=0)
+
+MAD.show_chip(calibrated,1)
+MAD.show_chip(calibrated2,1)
+MAD.show_chip(calibrated3,1)
+MAD.cosmic_ray_removal(calibrated,calibrated2,calibrated3,chip = 1)
 
 
 
-
-image = HST_V2.transform_by('sqrt', image, pmin=1, pmax=99)
-image2 = HST_V2.transform_by('sqrt', image2, pmin=1, pmax=99)
-image3 = HST_V2.transform_by('sqrt', image3, pmin=1, pmax=99)
-image4 = HST_V2.transform_by('sqrt', image4, pmin=1, pmax=99)
-fig, (ax1, ax2, ax3, ax4) = plt.subplots(ncols = 4,figsize=(8, 8))
-ax1.imshow(calibrated[0], origin="lower")
-ax2.imshow(calibrated[1], origin="lower")
-ax3.imshow(calibrated[2], origin="lower")
-ax4.imshow(calibrated[3], origin="lower")
-fig, (ax5, ax6, ax7, ax8) = plt.subplots(ncols = 4,figsize=(8, 8))
-ax5.imshow(image, origin="lower")
-ax6.imshow(image2, origin="lower")
-ax7.imshow(image3, origin="lower")
-ax8.imshow(image4, origin="lower")
-plt.show()
