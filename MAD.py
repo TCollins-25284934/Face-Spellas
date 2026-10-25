@@ -20,17 +20,11 @@ def image_extract(filename):
     with fits.open(filename) as hdul:
 
         for hdu in hdul:
-
-            if hdu.data is None:
-                continue
-
-            # Looking for a 4-chip image cube
             if (isinstance(hdu.data, np.ndarray) and hdu.data.ndim == 3 and 4 in hdu.data.shape):
-
                 data = hdu.data.astype(float)
                 return data
 
-    raise ValueError(f"No suitable image cube found in {filename}")
+    raise ValueError(f"No suitable image stack found in {filename}")
 
 
 def apply_mask(raw, mask):
@@ -56,41 +50,22 @@ def apply_blev_correction(raw, blev_file):
     corrected = raw.copy()
 
     with fits.open(blev_file) as hdul:
-
-        # New-format file:
-        # PRIMARY contains (14, 800, 4)
-        if (
-            hdul[0].data is not None
-            and hdul[0].data.ndim == 3
-            and 4 in hdul[0].data.shape
-        ):
+        if (hdul[0].data is not None and hdul[0].data.ndim == 3 and 4 in hdul[0].data.shape):
 
             blev_cube = hdul[0].data.astype(float)
-
-            # (14,800,4) -> (4,800,14)
-            if blev_cube.shape[-1] == 4:
-                blev_cube = np.moveaxis(blev_cube, -1, 0)
-
             for chip in range(4):
-
-                odd_bias, even_bias = get_blev_values(
-                    blev_cube[chip]
-                )
+                odd_bias, even_bias = get_blev_values(blev_cube[chip])
 
                 corrected[chip, :, ::2] -= odd_bias
                 corrected[chip, :, 1::2] -= even_bias
 
-        # Old-format file:
-        # chips stored in extensions 1-4
         else:
 
             for chip in range(4):
 
                 blev_chip = hdul[chip + 1].data.astype(float)
 
-                odd_bias, even_bias = get_blev_values(
-                    blev_chip
-                )
+                odd_bias, even_bias = get_blev_values(blev_chip)
 
                 corrected[chip, :, ::2] -= odd_bias
                 corrected[chip, :, 1::2] -= even_bias
